@@ -15,7 +15,7 @@ import signal
 from contextlib import contextmanager
 from gymnasium.wrappers import TimeLimit
 
-from learned_cartpole import CartPole_Learned
+from learned_cartpole2 import CartPole_Learned2
 
 # Suppress all warnings
 warnings.filterwarnings("ignore")
@@ -61,8 +61,10 @@ with SuppressOutput():
 
 # Register our custom environment with RLlib
 def env_creator(env_config):
-    env = CartPole_Learned(**env_config)
+    env = CartPole_Learned2(**env_config)
     env.spec = gym.spec("CartPole-v1")
+    #env.spec.max_episode_steps = 200  # Set max episode stepsenv = TimeLimit(env, max_episode_steps=1000)
+    env = TimeLimit(env, max_episode_steps=200)
     return env
 
 # Register environment
@@ -158,7 +160,7 @@ plt.savefig("mean_reward_vs_training_rounds_learned.png")
 plt.close()
 
 # Visualize trained agent
-env = CartPole_Learned(render_mode="rgb_array")
+env = CartPole_Learned2(render_mode="rgb_array")
 s, _ = env.reset()
 done = False
 cumulative_reward = 0

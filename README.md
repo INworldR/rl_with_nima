@@ -1,6 +1,6 @@
 # Reinforcement Learning with CartPole
 
-A reinforcement learning project based on the classic CartPole environment from OpenAI Gymnasium. This project implements and experiments with various RL algorithms to solve the pole balancing task.
+A reinforcement learning project based on the classic CartPole environment from OpenAI Gymnasium. This project implements learned dynamics models and DQN agents to solve the pole balancing task using neural network-based environment simulation.
 
 ## Overview
 
@@ -33,16 +33,21 @@ The CartPole environment consists of a pole attached by an un-actuated joint to 
 
 ```
 rl_with_nima/
-├── README.md           # This file
-├── CHANGELOG.md        # Version history
-├── requirements.txt    # Python dependencies
-├── src/               # Source code
-│   ├── agents/        # RL agents implementations
-│   ├── environments/  # Custom environment wrappers
-│   └── utils/         # Utility functions
-├── experiments/       # Experiment scripts and configs
-├── models/           # Saved models
-└── results/          # Training logs and visualizations
+├── README.md                  # This file
+├── README_smartpull.md        # Git workflow documentation
+├── CHANGELOG.md               # Version history
+├── requirements.txt           # Python dependencies
+├── setup-git-aliases.sh       # Git configuration script
+├── src/                       # Source code
+│   ├── __init__.py           # Package initialization
+│   ├── main.py               # Main experiment runner
+│   ├── random_agent.py       # Random baseline agent
+│   ├── learned_agent.py      # DQN agent with RLlib
+│   ├── learned_cartpole.py   # Learned dynamics CartPole v1
+│   ├── learned_cartpole2.py  # Learned dynamics CartPole v2
+│   └── plot_util.py          # Visualization utilities
+├── model/                     # Trained dynamics models
+└── mean_reward_vs_training_rounds_learned.png  # Training results
 ```
 
 ## Installation
@@ -62,18 +67,54 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-```python
-# Example usage will be added as the project develops
+### 1. Run the Basic Experiment Framework
+```bash
+# Run with random actions (baseline)
+python src/main.py --episodes 10
+
+# Run with rendering enabled
+python src/main.py --episodes 5 --render
+
+# Run with specific seed for reproducibility
+python src/main.py --episodes 10 --seed 123
 ```
 
-## Algorithms
+### 2. Test Random Agent on Learned Environment
+```bash
+python src/random_agent.py
+```
 
-This project will explore various RL algorithms:
-- [ ] Deep Q-Network (DQN)
-- [ ] Policy Gradient Methods
-- [ ] Actor-Critic Methods
-- [ ] PPO (Proximal Policy Optimization)
-- [ ] More to be added...
+### 3. Train DQN Agent with RLlib
+```bash
+python src/learned_agent.py
+```
+
+This will:
+- Train a DQN agent for 100 iterations
+- Show progress with a progress bar
+- Generate a plot of mean rewards over training rounds
+- Visualize the trained agent's performance
+
+## Components
+
+### Environments
+- **CartPole_Learned**: Custom CartPole environment with learned dynamics using neural networks
+- **CartPole_Learned2**: Extended version inheriting from Gymnasium's CartPoleEnv
+
+### Agents
+- **Random Agent**: Baseline agent that takes random actions
+- **DQN Agent**: Deep Q-Network implementation using Ray RLlib with:
+  - Experience replay buffer
+  - Target network updates
+  - Double Q-learning
+  - Dueling network architecture
+
+### Key Features
+- Learned dynamics models using PyTorch neural networks
+- Integration with Ray RLlib for scalable RL training
+- Visualization utilities for environment rendering
+- Progress tracking with tqdm
+- Configurable experiment parameters via CLI
 
 ## Contributing
 

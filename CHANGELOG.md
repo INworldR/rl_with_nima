@@ -22,12 +22,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Command-line arguments for seed, rendering, and episode count
   - Episode statistics tracking and reporting
 
-### Planned
-- Implement base CartPole environment wrapper
-- Add DQN (Deep Q-Network) agent
-- Create training and evaluation scripts
-- Add visualization tools for training progress
-- Implement logging and metrics tracking
+### Changed
+- Updated README.md with complete project structure and usage instructions
+- Enhanced project description to reflect learned dynamics implementation
+
+### Implemented
+- CartPole_Learned: Custom environment with neural network dynamics
+- CartPole_Learned2: Extended version inheriting from Gymnasium's CartPoleEnv
+- DQN agent implementation using Ray RLlib with advanced features:
+  - Double Q-learning
+  - Dueling network architecture
+  - Experience replay buffer
+  - Target network updates
+- Random agent baseline for performance comparison
+- Visualization utilities for environment rendering
+- Training progress tracking with tqdm
+- Comprehensive dependency list in requirements.txt
+
+### Dependencies Added
+- gymnasium>=0.28.1
+- keras~=2.15.0
+- matplotlib>=3.6.3
+- numpy>=1.21.0
+- pandas~=2.2.2
+- pygame>=2.5.0
+- pyglet==2.0.14
+- pylint==3.1.0
+- ray[default]==2.9.3
+- ray[rllib]>=2.9.3
+- tensorflow>=2.15.0
+- torch>=2.7.1
+- tqdm==4.65.0
 
 ## [0.1.0] - 2025-06-15
 
