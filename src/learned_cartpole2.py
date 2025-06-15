@@ -86,19 +86,13 @@ class CartPole_Learned2(CartPoleEnv):
                 self.observation_space.high
             )
             
-            # Check if episode is done
-            x, x_dot, theta, theta_dot = self.state
-            done = bool(
-                x < -self.x_threshold
-                or x > self.x_threshold
-                or theta < -self.theta_threshold_radians
-                or theta > self.theta_threshold_radians
-            )
-            
-            # Simple reward: 1 for each step
-            reward = 1.0
+            # Use parent class step method to get reward and done status
+            _, reward, terminated, truncated, info = super().step(action)
             
             if self.render_mode == "human":
                 self.render()
-                
-            return self.state, reward, done, False, {} 
+            
+            # Ensure state is a numpy array with the correct shape
+            state = np.array(self.state, dtype=np.float32)
+            
+            return state, float(reward), bool(terminated), bool(truncated), info 
