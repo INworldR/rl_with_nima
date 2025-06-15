@@ -1,41 +1,68 @@
-# Here you create an env and let an agent interact with it. You can measure how
-# successful is the random agent, i.e. how much reward it accumulates.
-
-# 0 - Create an env
 import gymnasium as gym
-from learned_cartpole import CartPole_Learned
-from gymnasium.wrappers import TimeLimit
+import numpy as np
+import pandas as pd
+import pickle  # Import pickle module
 
-# env = gym.make("CartPole-v1", render_mode="rgb_array")
-#env = gym.make("MountainCar-v0", render_mode="rgb_array")
-env = CartPole_Learned(render_mode="rgb_array")
-env = TimeLimit(env, max_episode_steps=300)
 
-# 1 - Reset the env.
-env.reset()
-# 2 - Let a random agent interact with the env.
-#
-# 2.1. Choose a random action (with in the action space of the env.)
-import random
-num_actions = env.action_space.n
-print("Action space:", num_actions)
+def collect_interaction_history(
+    env_name="CartPole-v1", episodes=100, output_file="random_agent_history.pkl"
+):
+    """
+    Interacts with the environment for a given number of episodes, collects state-action-next state pairs,
+    and saves them to a pickle file.
 
-action_list = [n for n in range(0, num_actions)]
-print("Action list", action_list)
-action = random.choice(action_list)
-print("First random action:", action)
-# 2.2. and pass it to the environment
-_, r1, terminated, truncated, _ = env.step(action)
-# 2.3. How much reward did you get for that action? Keep the score!
-print("First reward:", r1)
-# 2.4. Repeat the 2.{1,2,3} until the end of the episode
-total_reward = r1
-while not (terminated or truncated):
-    action = random.choice(action_list)
-    _, r2, terminated, truncated, _ = env.step(action)
-    #print("Action:", action)
-    total_reward += r2
+    Parameters:
+    - env_name: str, name of the environment (default is "CartPole-v1")
+    - episodes: int, number of episodes to run
+    - output_file: str, name of the output pickle file to save the history
 
-# 2.5. How much total reward you got? What does it mean to have large/small reward?
-print("Total reward:", total_reward)
-# 3. Repeat the whole section 2. Do you get the same total reward?
+    Returns:
+    - history: list of dictionaries, each containing (state, action, next_state)
+    """
+
+    # Create the environment
+    env = gym.make(env_name, render_mode="rgb_array")
+
+    # List to store the states, actions, and next states
+    history = []
+
+    # Run the agent through several episodes
+    for episode in range(episodes):
+        terminated = False
+        truncated = False
+        total_reward = 0
+
+        # Reset the environment at the beginning of each episode
+        initial_state = env.reset()
+        current_state = initial_state[0]
+
+        while not terminated and not truncated:
+            # Randomly choose an action from the action space
+            action = np.random.randint(0, env.action_space.n)
+
+            # Take the chosen action and get the next state, reward, etc.
+            next_state, reward, terminated, truncated, info = env.step(action)
+
+            # Append the data as a dictionary (state, action, next_state) to the history
+            history.append(
+                {"state": current_state, "action": action, "next_state": next_state}
+            )
+
+            # Move to the next state
+            current_state = next_state
+
+    # Save the history to a pickle file for further analysis
+    with open(output_file, "wb") as f:
+        pickle.dump(pd.DataFrame(history), f)
+
+    return history
+
+
+# Example usage
+history = collect_interaction_history(
+    episodes=1000, output_file="data/random_agent_history.pkl"
+)
+
+# Print the first few entries in the history
+print("History of interactions:")
+print(history[:5])
