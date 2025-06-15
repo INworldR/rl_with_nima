@@ -39,6 +39,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Training progress tracking with tqdm
 - Comprehensive dependency list in requirements.txt
 
+### Merged
+- Integrated blue-team branch with data collection features:
+  - Enhanced random_agent.py with dual functionality
+  - Added collect_interaction_history() function for gathering state-action-next state pairs
+  - Saves interaction data to pickle files for dynamics model training
+  - Maintains original demo functionality with run_random_agent_demo()
+  - Creates data directory automatically when saving histories
+
 ### Dependencies Added
 - gymnasium>=0.28.1
 - keras~=2.15.0

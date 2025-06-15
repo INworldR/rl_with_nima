@@ -41,11 +41,12 @@ rl_with_nima/
 ├── src/                       # Source code
 │   ├── __init__.py           # Package initialization
 │   ├── main.py               # Main experiment runner
-│   ├── random_agent.py       # Random baseline agent
+│   ├── random_agent.py       # Random agent with demo and data collection
 │   ├── learned_agent.py      # DQN agent with RLlib
 │   ├── learned_cartpole.py   # Learned dynamics CartPole v1
 │   ├── learned_cartpole2.py  # Learned dynamics CartPole v2
 │   └── plot_util.py          # Visualization utilities
+├── data/                      # Collected interaction histories
 ├── model/                     # Trained dynamics models
 └── mean_reward_vs_training_rounds_learned.png  # Training results
 ```
@@ -84,6 +85,11 @@ python src/main.py --episodes 10 --seed 123
 python src/random_agent.py
 ```
 
+This will:
+- Run a demo showing random agent performance
+- Collect 100 episodes of interaction data
+- Save state-action-next state pairs to `data/random_agent_history.pkl`
+
 ### 3. Train DQN Agent with RLlib
 ```bash
 python src/learned_agent.py
@@ -102,7 +108,9 @@ This will:
 - **CartPole_Learned2**: Extended version inheriting from Gymnasium's CartPoleEnv
 
 ### Agents
-- **Random Agent**: Baseline agent that takes random actions
+- **Random Agent**: Baseline agent with two modes:
+  - Demo mode: Shows performance on learned CartPole environment
+  - Data collection mode: Gathers interaction histories for training dynamics models
 - **DQN Agent**: Deep Q-Network implementation using Ray RLlib with:
   - Experience replay buffer
   - Target network updates
@@ -112,9 +120,11 @@ This will:
 ### Key Features
 - Learned dynamics models using PyTorch neural networks
 - Integration with Ray RLlib for scalable RL training
+- Data collection utilities for training dynamics models
 - Visualization utilities for environment rendering
 - Progress tracking with tqdm
 - Configurable experiment parameters via CLI
+- Automatic directory creation for data storage
 
 ## Contributing
 
