@@ -80,7 +80,7 @@ def collect_transitions_with_agent(checkpoint_dir, num_episodes=100):
 
 def main():
     """Main function to run inference and save data."""
-    checkpoint_dir = "./cartpole_dqn_checkpoints"
+    checkpoint_dir = "./nn_models/cartpole_dqn_checkpoints"
 
     try:
         # Collect transitions using the trained agent
