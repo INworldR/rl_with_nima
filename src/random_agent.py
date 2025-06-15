@@ -1,45 +1,68 @@
 import gymnasium as gym
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pickle  # Import pickle module
 
-# Create an environment for the agent to interact with
-env = gym.make("CartPole-v1", render_mode="rgb_array")
 
-# History list to store the states, actions, and next states
-history = []
+def collect_interaction_history(
+    env_name="CartPole-v1", episodes=100, output_file="random_agent_history.pkl"
+):
+    """
+    Interacts with the environment for a given number of episodes, collects state-action-next state pairs,
+    and saves them to a pickle file.
 
-# Number of episodes to run
-episodes = 100
+    Parameters:
+    - env_name: str, name of the environment (default is "CartPole-v1")
+    - episodes: int, number of episodes to run
+    - output_file: str, name of the output pickle file to save the history
 
-# Run the agent through several episodes
-for episode in range(episodes):
-    terminated = False
-    truncated = False
-    total_reward = 0
+    Returns:
+    - history: list of dictionaries, each containing (state, action, next_state)
+    """
 
-    # Reset the environment at the beginning of each episode
-    initial_state = env.reset()
-    current_state = initial_state[0]
+    # Create the environment
+    env = gym.make(env_name, render_mode="rgb_array")
 
-    while not terminated and not truncated:
-        # Randomly choose an action from the action space
-        action = np.random.randint(0, env.action_space.n)
+    # List to store the states, actions, and next states
+    history = []
 
-        # Take the chosen action and get the next state, reward, etc.
-        next_state, reward, terminated, truncated, info = env.step(action)
+    # Run the agent through several episodes
+    for episode in range(episodes):
+        terminated = False
+        truncated = False
+        total_reward = 0
 
-        # Append the (initial_state, action, next_state) to the history
-        history.append((current_state, action, next_state))
+        # Reset the environment at the beginning of each episode
+        initial_state = env.reset()
+        current_state = initial_state[0]
 
-        # Move to the next state
-        current_state = next_state
+        while not terminated and not truncated:
+            # Randomly choose an action from the action space
+            action = np.random.randint(0, env.action_space.n)
 
-# Print out the history of interactions (states, actions, next states)
-print("History of interactions between the agent and environment:")
-for initial_state, action, next_state in history:
-    print(f"Initial State: {initial_state}, Action: {action}, Next State: {next_state}")
+            # Take the chosen action and get the next state, reward, etc.
+            next_state, reward, terminated, truncated, info = env.step(action)
 
-# Save the history to a CSV file for further analysis
-df = pd.DataFrame(history, columns=["Initial_State", "Action", "Next_State"])
-df.to_csv("random_agent_history.csv", index=False)
+            # Append the data as a dictionary (state, action, next_state) to the history
+            history.append(
+                {"state": current_state, "action": action, "next_state": next_state}
+            )
+
+            # Move to the next state
+            current_state = next_state
+
+    # Save the history to a pickle file for further analysis
+    with open(output_file, "wb") as f:
+        pickle.dump(pd.DataFrame(history), f)
+
+    return history
+
+
+# Example usage
+history = collect_interaction_history(
+    episodes=100, output_file="data/random_agent_history.pkl"
+)
+
+# Print the first few entries in the history
+print("History of interactions:")
+print(history[:5])
