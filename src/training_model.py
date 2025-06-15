@@ -20,6 +20,8 @@ import numpy as np
 import pandas as pd
 from keras import layers
 from keras.models import Model
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 import pdb
 
 
@@ -46,35 +48,42 @@ def create_model(hidden_layers: list[int]) -> keras.Model:
 
 
 # 1. Load the data set
-list_of_data_files = ["data/random_agent_history.pkl", "data/random_agent_history.pkl"]
+list_of_data_files = ["data/random_agent_history.pkl"]
 data = pd.concat([pd.read_pickle(file) for file in list_of_data_files])
-# print number of raw of data
-print(data.shape)
+
+# Check the shape of the data
+print(f"Data shape: {data.shape}")
 
 # 1.1. Extract the state, action, and next_state columns
 state = np.array(data["state"].tolist())
 action = np.array(data["action"].tolist())
-
-# 1.2. Extract the next_state column
 next_state = np.array(data["next_state"].tolist())
 
-# 2. Define the model
+# 2. Split the data into training and testing sets (80% training, 20% testing)
+(
+    state_train,
+    state_test,
+    action_train,
+    action_test,
+    next_state_train,
+    next_state_test,
+) = train_test_split(state, action, next_state, test_size=0.2, random_state=42)
+
+# 3. Define the model
 model = create_model([64, 64, 64])
-# 3. Train the model
-model.fit([state, action], next_state, epochs=40)
 
-# 4. Save the model
-model.save("nn_models/first_model.h5")
+# 4. Train the model with validation data (optional early stopping or validation split)
+model.fit(
+    [state_train, action_train], next_state_train, epochs=40, validation_split=0.2
+)
+
+# 5. Predict the next state on the test set
+predicted_next_state = model.predict([state_test, action_test])
+
+# 6. Calculate the mean squared error (MSE) between the predicted and actual next states
+mse = mean_squared_error(next_state_test, predicted_next_state)
+print(f"Mean Squared Error on Test Set: {mse}")
+
+# 7. Save the model
+model.save("nn_models/random_model.h5")
 print("Model saved.")
-# 5. Load the model
-model = keras.models.load_model("nn_models/first_model.h5")
-
-# 6. Predict the next state
-state = np.array([[0.0, 0.0, 0.0, 0.0]])
-action = np.array([[0]])
-next_state = model.predict([state, action])
-print(f"Predicted next state: {next_state}")
-
-
-# 10. Print the model configuration
-print(model.get_config())
