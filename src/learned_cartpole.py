@@ -57,6 +57,8 @@ class CartPole_Learned(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         
         # Action and observation spaces
         self.action_space = spaces.Discrete(2)
+        
+        # Match the observation space with CartPole-v1
         self.observation_space = spaces.Box(
             low=np.array([-self.x_threshold, -np.inf, -self.theta_threshold_radians, -np.inf]),
             high=np.array([self.x_threshold, np.inf, self.theta_threshold_radians, np.inf]),
@@ -100,12 +102,17 @@ class CartPole_Learned(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         options: dict | None = None,
     ):
         super().reset(seed=seed)
-        # Initialize state with small random values
-        self.state = np.random.uniform(low=-0.05, high=0.05, size=(4,))
+        # Initialize state with small random values within bounds
+        self.state = np.array([
+            np.random.uniform(low=-0.05, high=0.05),  # x
+            np.random.uniform(low=-0.05, high=0.05),  # x_dot
+            np.random.uniform(low=-0.05, high=0.05),  # theta
+            np.random.uniform(low=-0.05, high=0.05)   # theta_dot
+        ], dtype=np.float32)
         self.steps_beyond_terminated = None
         if self.render_mode == "human":
             self.render()
-        return np.array(self.state, dtype=np.float32), {}
+        return self.state, {}
         
     def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, dict]:
         with torch.no_grad():
@@ -116,6 +123,13 @@ class CartPole_Learned(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             # Predict next state using dynamics network
             next_state = self.dynamics(state_tensor, action_tensor)
             self.state = next_state.squeeze().numpy()
+            
+            # Ensure state is within bounds
+            self.state = np.clip(
+                self.state,
+                self.observation_space.low,
+                self.observation_space.high
+            )
             
             # Check if episode is done
             x, x_dot, theta, theta_dot = self.state
