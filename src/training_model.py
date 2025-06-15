@@ -48,7 +48,7 @@ def create_model(hidden_layers: list[int]) -> keras.Model:
 
 
 # 1. Load the data set
-list_of_data_files = ["data/random_agent_history.pkl"]
+list_of_data_files = ["data/random_agent_history.pkl", "data/trained_agent_history.pkl"]
 data = pd.concat([pd.read_pickle(file) for file in list_of_data_files])
 
 # Check the shape of the data
@@ -86,5 +86,5 @@ print(f"Mean Squared Error on Test Set: {mse}")
 
 # 7. Save the model
 # model.save("nn_models/random_model.h5")
-model.save("nn_models/random_env.h5")
+model.save("nn_models/random_and_trained_env.h5")
 print("Model saved.")

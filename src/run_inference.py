@@ -59,7 +59,9 @@ def collect_transitions_with_agent(checkpoint_dir, num_episodes=100):
             total_reward += reward
 
             # Save transition information - keep numpy arrays intact for pickle
-            history.append((current_state, int(action), next_state))
+            history.append(
+                {"state": current_state, "action": action, "next_state": next_state}
+            )
 
             # Update current state
             current_state = next_state
@@ -88,7 +90,7 @@ def main():
 
         # Export transitions as pickle file
         with open("trained_agent_history.pkl", "wb") as f:
-            pickle.dump(history, f)
+            pickle.dump(pd.DataFrame(history), f)
 
         # Also save the episode rewards as pickle
         with open("trained_agent_rewards.pkl", "wb") as f:
