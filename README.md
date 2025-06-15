@@ -105,7 +105,12 @@ This will:
 
 ### Environments
 - **CartPole_Learned**: Custom CartPole environment with learned dynamics using neural networks
+  - Default model path: `model/team_blue_model.pkl`
+  - Supports direct pickle loading of trained models
 - **CartPole_Learned2**: Extended version inheriting from Gymnasium's CartPoleEnv
+  - Default model path: `data/random_agent_history.pkl`
+  - Enhanced model loading with PyTorch state_dict format support
+  - Automatic format detection (DataFrame vs PyTorch state_dict)
 
 ### Agents
 - **Random Agent**: Baseline agent with two modes:
@@ -119,6 +124,7 @@ This will:
 
 ### Key Features
 - Learned dynamics models using PyTorch neural networks
+- Flexible model loading supporting multiple formats (pickle, PyTorch state_dict)
 - Integration with Ray RLlib for scalable RL training
 - Data collection utilities for training dynamics models
 - Visualization utilities for environment rendering

@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated README.md with complete project structure and usage instructions
 - Enhanced project description to reflect learned dynamics implementation
+- Modified CartPole_Learned2 to use data/random_agent_history.pkl as default model path
+- Enhanced model loading to support PyTorch state_dict format with proper error handling
+- Added automatic format detection for loaded models (DataFrame vs PyTorch state_dict)
 
 ### Implemented
 - CartPole_Learned: Custom environment with neural network dynamics

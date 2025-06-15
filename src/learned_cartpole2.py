@@ -15,6 +15,7 @@ from gymnasium.envs.classic_control import CartPoleEnv
 from gymnasium import spaces
 from gymnasium.error import DependencyNotInstalled
 
+model_path = "data/random_agent_history.pkl"
 # Set up logger
 logger = logging.getLogger(__name__)
 
@@ -44,13 +45,24 @@ class CartPole_Learned2(CartPoleEnv):
         
         # Set default model path if none provided
         if dynamics_path is None:
-            dynamics_path = str(Path("model/team_blue_model.pkl"))
+            dynamics_path = str(Path(model_path))
             
         # Initialize dynamics network
         if os.path.exists(dynamics_path):
             try:
                 with open(dynamics_path, 'rb') as f:
-                    self.dynamics = pickle.load(f)
+                    model_data = pickle.load(f)
+                    # Create new network and load state dict
+                    self.dynamics = DynamicsNetwork(
+                        state_dim=4,
+                        action_dim=1,
+                        hidden_dim=hidden_dim
+                    )
+                    if isinstance(model_data, dict) and 'state_dict' in model_data:
+                        self.dynamics.load_state_dict(model_data['state_dict'])
+                    else:
+                        # If it's a DataFrame or other format, we need to convert it
+                        logger.warning("Model format not recognized, using untrained network")
                 logger.info(f"Successfully loaded dynamics model from {dynamics_path}")
             except Exception as e:
                 logger.warning(f"Failed to load dynamics model from {dynamics_path}: {e}")
