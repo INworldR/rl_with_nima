@@ -45,6 +45,8 @@ class CartPole_Learned(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         self.x_threshold = 2.4
         self.theta_threshold_radians = 12 * 2 * math.pi / 360
         self.length = 0.5  # pole length
+        self.max_steps =-200  # Maximum number of steps before termination
+        self.steps = 0  # Step counter
         
         # Rendering parameters
         self.render_mode = render_mode
@@ -109,6 +111,7 @@ class CartPole_Learned(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             np.random.uniform(low=-0.05, high=0.05),  # theta
             np.random.uniform(low=-0.05, high=0.05)   # theta_dot
         ], dtype=np.float32)
+        self.steps = 0  # Reset step counter
         self.steps_beyond_terminated = None
         if self.render_mode == "human":
             self.render()
@@ -131,6 +134,9 @@ class CartPole_Learned(gym.Env[np.ndarray, Union[int, np.ndarray]]):
                 self.observation_space.high
             )
             
+            # Increment step counter
+            self.steps += 1
+            
             # Check if episode is done
             x, x_dot, theta, theta_dot = self.state
             done = bool(
@@ -138,6 +144,7 @@ class CartPole_Learned(gym.Env[np.ndarray, Union[int, np.ndarray]]):
                 or x > self.x_threshold
                 or theta < -self.theta_threshold_radians
                 or theta > self.theta_threshold_radians
+                or self.steps >= self.max_steps  # Terminate after max_steps
             )
             
             # Simple reward: 1 for each step

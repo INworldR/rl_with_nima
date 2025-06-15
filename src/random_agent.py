@@ -3,13 +3,16 @@
 
 # 0 - Create an env
 import gymnasium as gym
+from learned_cartpole import CartPole_Learned
+from gymnasium.wrappers import TimeLimit
 
 # env = gym.make("CartPole-v1", render_mode="rgb_array")
-env = gym.make("MountainCar-v0", render_mode="rgb_array")
+#env = gym.make("MountainCar-v0", render_mode="rgb_array")
+env = CartPole_Learned(render_mode="rgb_array")
+env = TimeLimit(env, max_episode_steps=300)
 
 # 1 - Reset the env.
 env.reset()
-
 # 2 - Let a random agent interact with the env.
 #
 # 2.1. Choose a random action (with in the action space of the env.)
@@ -30,6 +33,7 @@ total_reward = r1
 while not (terminated or truncated):
     action = random.choice(action_list)
     _, r2, terminated, truncated, _ = env.step(action)
+    #print("Action:", action)
     total_reward += r2
 
 # 2.5. How much total reward you got? What does it mean to have large/small reward?

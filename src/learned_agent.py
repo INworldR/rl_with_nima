@@ -13,6 +13,7 @@ import sys
 import time
 import signal
 from contextlib import contextmanager
+from gymnasium.wrappers import TimeLimit
 
 from learned_cartpole import CartPole_Learned
 
@@ -21,8 +22,8 @@ warnings.filterwarnings("ignore")
 os.environ["PYTHONWARNINGS"] = "ignore"
 os.environ["RAY_DEDUP_LOGS"] = "0"  # Disable log deduplication
 
-# Enable more verbose logging
-logging.basicConfig(level=logging.INFO)
+# Set logging to ERROR level only
+logging.basicConfig(level=logging.ERROR)
 logger = logging.getLogger(__name__)
 
 # Timeout context manager
@@ -47,34 +48,27 @@ class SuppressOutput:
         sys.stdout.close()
         sys.stdout = self._original_stdout
 
-# Initialize Ray with verbose logging
-logger.info("Initializing Ray...")
+# Initialize Ray with minimal logging
 with SuppressOutput():
     ray.init(
-        logging_level=logging.INFO,
-        log_to_driver=True,
+        logging_level=logging.ERROR,
+        log_to_driver=False,
         include_dashboard=False,
         ignore_reinit_error=True,
         local_mode=True,
         num_cpus=1
     )
-logger.info("Ray initialized!")
 
 # Register our custom environment with RLlib
 def env_creator(env_config):
-    logger.info("Creating environment...")
     env = CartPole_Learned(**env_config)
     env.spec = gym.spec("CartPole-v1")
-    logger.info("Environment created!")
     return env
 
 # Register environment
-logger.info("Registering environment...")
 register_env("CartPole-Learned-v0", env_creator)
-logger.info("Environment registered!")
 
 # Configure DQN with minimal settings
-logger.info("Configuring DQN...")
 config = DQNConfig()
 config = config.environment(env="CartPole-Learned-v0", env_config={})
 config = config.framework(framework="tf2")
@@ -82,10 +76,10 @@ config = config.rollouts(
     num_rollout_workers=0,
     num_envs_per_worker=1,
     batch_mode="complete_episodes",
-    rollout_fragment_length=10  # Shorter episodes
+    rollout_fragment_length=10
 )
 config = config.training(
-    train_batch_size=20,  # Smaller batch size
+    train_batch_size=20,
     lr=0.001,
     gamma=0.99,
     target_network_update_freq=20,
@@ -105,15 +99,12 @@ config = config.evaluation(
 )
 
 # Build agent
-logger.info("Building agent...")
 with SuppressOutput():
     agent = config.build()
-logger.info("Agent built successfully!")
 
 # Training loop
 nr_trainings = 100
 mean_rewards = []
-logger.info(f"Starting training for {nr_trainings} iterations...")
 
 pbar = tqdm(
     total=nr_trainings,
@@ -126,27 +117,19 @@ pbar = tqdm(
 
 try:
     for i in range(nr_trainings):
-        logger.info(f"Starting iteration {i+1}/{nr_trainings}")
-        
         # Train with timeout
-        logger.info("Starting training step...")
         try:
-            with timeout(30):  # 30 second timeout
+            with timeout(30):
                 result = agent.train()
-                logger.info(f"Training step completed. Result: {result}")
         except TimeoutError:
-            logger.error("Training step timed out!")
             raise
         
         # Evaluate with timeout
-        logger.info("Starting evaluation...")
         try:
-            with timeout(10):  # 10 second timeout
+            with timeout(10):
                 eval_result = agent.evaluate()
-                mean_reward = eval_result["env_runners"]["episode_reward_mean"]
-                logger.info(f"Evaluation completed. Mean reward: {mean_reward:.2f}")
+                mean_reward = eval_result["evaluation"]["sampler_results"]["episode_reward_mean"]
         except TimeoutError:
-            logger.error("Evaluation timed out!")
             raise
         
         mean_rewards.append(mean_reward)
@@ -159,15 +142,10 @@ try:
         pbar.update(1)
         pbar.refresh()
         
-        logger.info(f"Iteration {i+1} completed!")
-        
 except Exception as e:
-    logger.error(f"Error during training: {e}", exc_info=True)
     raise e
 finally:
     pbar.close()
-
-logger.info("Training completed. Starting visualization...")
 
 # Plot results
 plt.figure(figsize=(10, 6))
@@ -180,7 +158,6 @@ plt.savefig("mean_reward_vs_training_rounds_learned.png")
 plt.close()
 
 # Visualize trained agent
-logger.info("Visualizing trained agent...")
 env = CartPole_Learned(render_mode="rgb_array")
 s, _ = env.reset()
 done = False
@@ -193,9 +170,7 @@ while not done:
     done = terminated or truncated
     visualize_env(env=env, pause_sec=0.1)
 
-logger.info(f"Visualization completed. Total reward: {cumulative_reward}")
 env.close()
 
 # Cleanup
-ray.shutdown()
-logger.info("Training process completed.") 
+ray.shutdown() 
