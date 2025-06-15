@@ -2,6 +2,8 @@ import math
 from typing import Union, Optional, Tuple
 import pickle
 import os
+from pathlib import Path
+import logging
 
 import numpy as np
 import torch
@@ -9,12 +11,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import gymnasium as gym
-from gymnasium import logger, spaces
-from gymnasium.envs.classic_control import utils
+from gymnasium import spaces
 from gymnasium.error import DependencyNotInstalled
-from gymnasium.vector import AutoresetMode, VectorEnv
-from gymnasium.vector.utils import batch_space
 
+# Set up logger
+logger = logging.getLogger(__name__)
 
 class DynamicsNetwork(nn.Module):
     def __init__(self, state_dim: int, action_dim: int, hidden_dim: int):
@@ -62,11 +63,25 @@ class CartPole_Learned(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             dtype=np.float32
         )
 
+        # Set default model path if none provided
+        if dynamics_path is None:
+            dynamics_path = str(Path("model/team_blue_model.pkl"))
+            
         # Initialize dynamics network
-        if dynamics_path and os.path.exists(dynamics_path):
-            with open(dynamics_path, 'rb') as f:
-                self.dynamics = pickle.load(f)
+        if os.path.exists(dynamics_path):
+            try:
+                with open(dynamics_path, 'rb') as f:
+                    self.dynamics = pickle.load(f)
+                logger.info(f"Successfully loaded dynamics model from {dynamics_path}")
+            except Exception as e:
+                logger.warning(f"Failed to load dynamics model from {dynamics_path}: {e}")
+                self.dynamics = DynamicsNetwork(
+                    state_dim=4,
+                    action_dim=1,
+                    hidden_dim=hidden_dim
+                )
         else:
+            logger.warning(f"Dynamics model not found at {dynamics_path}, using untrained network")
             self.dynamics = DynamicsNetwork(
                 state_dim=4,
                 action_dim=1,
@@ -85,12 +100,8 @@ class CartPole_Learned(gym.Env[np.ndarray, Union[int, np.ndarray]]):
         options: dict | None = None,
     ):
         super().reset(seed=seed)
-        # Note that if you use custom reset bounds, it may lead to out-of-bound
-        # state/observations.
-        low, high = utils.maybe_parse_reset_bounds(
-            options, -0.05, 0.05  # default low
-        )  # default high
-        self.state = self.np_random.uniform(low=low, high=high, size=(4,))
+        # Initialize state with small random values
+        self.state = np.random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_terminated = None
         if self.render_mode == "human":
             self.render()
@@ -125,12 +136,6 @@ class CartPole_Learned(gym.Env[np.ndarray, Union[int, np.ndarray]]):
             
     def render(self):
         if self.render_mode is None:
-            assert self.spec is not None
-            gym.logger.warn(
-                "You are calling render method without specifying any render mode. "
-                "You can specify the render_mode at initialization, "
-                f'e.g. gym.make("{self.spec.id}", render_mode="rgb_array")'
-            )
             return
         try:
             import pygame
