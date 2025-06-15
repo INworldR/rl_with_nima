@@ -27,7 +27,7 @@ The CartPole environment consists of a pole attached by an un-actuated joint to 
 - **Episode Termination**:
   - Pole angle exceeds ±12°
   - Cart position goes beyond ±2.4
-  - Episode length reaches 500 steps (considered solved)
+  - Episode length reaches 200 steps
 
 ## Project Structure
 
@@ -47,22 +47,23 @@ rl_with_nima/
 │   ├── learned_cartpole2.py  # Learned dynamics CartPole v2
 │   └── plot_util.py          # Visualization utilities
 ├── data/                      # Collected interaction histories
+│   └── random_agent_history.pkl # Team Blue model
 ├── model/                     # Trained dynamics models
 └── mean_reward_vs_training_rounds_learned.png  # Training results
 ```
 
 ## Installation
 
+1. Clone the repository:
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/rl_with_nima.git
 cd rl_with_nima
+```
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+2. Create a virtual environment and install dependencies:
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -111,6 +112,7 @@ This will:
   - Default model path: `data/random_agent_history.pkl`
   - Enhanced model loading with PyTorch state_dict format support
   - Automatic format detection (DataFrame vs PyTorch state_dict)
+  - Direct state prediction without using parent class step method
 
 ### Agents
 - **Random Agent**: Baseline agent with two modes:

@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Random agent baseline implementation
   - Command-line arguments for seed, rendering, and episode count
   - Episode statistics tracking and reporting
+- New `CartPole_Learned2` class inheriting from standard CartPole-v1 environment
+- Improved model loading logic for different model formats
+- TimeLimit wrapper for environment (200 steps per episode)
 
 ### Changed
 - Updated README.md with complete project structure and usage instructions
@@ -28,6 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modified CartPole_Learned2 to use data/random_agent_history.pkl as default model path
 - Enhanced model loading to support PyTorch state_dict format with proper error handling
 - Added automatic format detection for loaded models (DataFrame vs PyTorch state_dict)
+- Restructured agent code into `train_agent()` function
+- Reduced logging output to minimum
+- Enhanced error handling for dynamics model loading
+
+### Fixed
+- Corrected return values in `step` method for consistent array shapes
+- Fixed model loading logic for Team Blue model
+- Reverted step method to use direct state prediction instead of parent class step
 
 ### Implemented
 - CartPole_Learned: Custom environment with neural network dynamics
@@ -65,11 +76,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - torch>=2.7.1
 - tqdm==4.65.0
 
-## [0.1.0] - 2025-06-15
+## [0.1.0] - 2024-03-15
 
 ### Added
-- Project initialization based on Gymnasium's CartPole environment
-- Documentation framework with README and CHANGELOG
+- Initial implementation of learned CartPole environment
+- DQN agent with Ray RLlib
+- Training results visualization
+- Basic documentation
 
 [Unreleased]: https://github.com/yourusername/rl_with_nima/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/yourusername/rl_with_nima/releases/tag/v0.1.0
