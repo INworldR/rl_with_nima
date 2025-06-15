@@ -85,5 +85,6 @@ mse = mean_squared_error(next_state_test, predicted_next_state)
 print(f"Mean Squared Error on Test Set: {mse}")
 
 # 7. Save the model
-model.save("nn_models/random_model.h5")
+# model.save("nn_models/random_model.h5")
+model.save("nn_models/random_env.h5")
 print("Model saved.")

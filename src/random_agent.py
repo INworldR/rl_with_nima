@@ -60,7 +60,7 @@ def collect_interaction_history(
 
 # Example usage
 history = collect_interaction_history(
-    episodes=100, output_file="data/random_agent_history.pkl"
+    episodes=1000, output_file="data/random_agent_history.pkl"
 )
 
 # Print the first few entries in the history
