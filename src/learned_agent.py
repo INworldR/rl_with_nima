@@ -5,7 +5,7 @@ from plot_util import visualize_env
 import ray
 from ray.rllib.algorithms.dqn import DQNConfig
 from ray.tune.registry import register_env
-from tqdm import tqdm
+from tqdm.auto import tqdm  # Using tqdm.auto for better compatibility
 
 from learned_cartpole import CartPole_Learned
 
@@ -42,21 +42,33 @@ agent = config.build()
 # 3 - Run training loop
 nr_trainings = 100
 mean_rewards = []
-print("Starting training...")
+print("\nStarting training...\n")
 
-# Create progress bar
-pbar = tqdm(total=nr_trainings, desc="Training Progress")
+# Create progress bar with more visible settings
+pbar = tqdm(
+    total=nr_trainings,
+    desc="Training Progress",
+    bar_format='{l_bar}{bar:30}{r_bar}',
+    ncols=100,
+    position=0,
+    leave=True
+)
 
 for i in range(nr_trainings):
     result = agent.train()
     mean_reward = agent.evaluate()["env_runners"]["episode_reward_mean"]
     mean_rewards.append(mean_reward)
     
-    # Update progress bar with current reward
-    pbar.set_postfix({"mean_reward": f"{mean_reward:.2f}"})
+    # Update progress bar with current reward and iteration
+    pbar.set_postfix({
+        "mean_reward": f"{mean_reward:.2f}",
+        "iteration": f"{i+1}/{nr_trainings}"
+    })
     pbar.update(1)
+    pbar.refresh()  # Force refresh the display
 
 pbar.close()
+print("\nTraining completed. Starting visualization...\n")
 
 # Plot the mean rewards
 plt.figure(figsize=(10, 6))
@@ -67,8 +79,6 @@ plt.title("Mean reward vs. training rounds")
 plt.grid(True)
 plt.savefig("mean_reward_vs_training_rounds_learned.png")
 plt.close()
-
-print("\nTraining completed. Starting visualization...")
 
 # 4 - Visualize the trained agent
 env = CartPole_Learned(render_mode="rgb_array")
