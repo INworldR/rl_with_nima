@@ -12,6 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README.md with project overview and structure
 - CHANGELOG.md for tracking version history
 - Basic project directory structure planning
+- README_smartpull.md documentation for git smartpull alias
+- setup-git-aliases.sh script for easy git alias installation
+- src/ directory with initial Python package structure
+- src/__init__.py with package metadata and imports
+- src/main.py with CartPoleExperiment class and CLI interface
+  - Basic experiment framework with logging
+  - Random agent baseline implementation
+  - Command-line arguments for seed, rendering, and episode count
+  - Episode statistics tracking and reporting
 
 ### Planned
 - Implement base CartPole environment wrapper
